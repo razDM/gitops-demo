@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+spec:
+  destination:
+    namespace: ingress-nginx
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: ingress-nginx
+    helm:
+      values: |
+        controller:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+          extraArgs:
+            publish-status-address: argo.65.108.216.29.nip.io
+          hostPort:
+            enabled: true
+          kind: DaemonSet
+          priorityClassName: system-cluster-critical
+          service:
+            enabled: false
+          tolerations:
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/control-plane
+            operator: Exists
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    targetRevision: 4.8.2
