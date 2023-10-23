@@ -11,4 +11,8 @@ spec:
   source:
     chart: kyverno
     repoURL: https://kyverno.github.io/kyverno/ 
-    targetRevision: 3.11.0
+    targetRevision: 3.0.4
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated: {}
