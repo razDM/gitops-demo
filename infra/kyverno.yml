@@ -5,13 +5,13 @@ metadata:
   namespace: argocd
 spec:
   destination:
-    namespace: kube-system
+    namespace: kyverno
     server: https://kubernetes.default.svc
   project: default
   source:
     chart: kyverno
     repoURL: https://kyverno.github.io/kyverno/ 
-    targetRevision: 3.0.4
+    targetRevision: 3.0.5
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
