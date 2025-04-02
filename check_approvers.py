@@ -42,7 +42,7 @@ class CommitHandler:
             Set of committer login names
         """
         return {
-            commit.committer.login 
+            commit.committer.name
             for commit in self.pr.get_commits() 
             if commit.committer and commit.committer.name
         }
