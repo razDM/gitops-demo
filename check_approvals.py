@@ -2,6 +2,7 @@ import os
 import sys
 from github import Github
 
+
 class PullRequestChecker:
     def __init__(self, repo_name: str, pr_number: int, token: str):
         self.repo_name = repo_name
