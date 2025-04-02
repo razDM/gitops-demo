@@ -1,6 +1,6 @@
 from github import Github
 import sys
-
+import os
 APPROVED_STATE = "APPROVED"
 
 class CommitHandler:
