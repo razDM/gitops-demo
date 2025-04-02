@@ -1,6 +1,15 @@
-import os
-import sys
 from github import Github
+import sys
+
+APPROVED_STATE = "APPROVED"
+
+class CommitHandler:
+    def __init__(self, pr):
+        self.pr = pr
+
+    def get_committers(self):
+        return {commit.committer.login for commit in self.pr.get_commits() if commit.committer}
+
 
 class PullRequestChecker:
     def __init__(self, repo_name: str, pr_number: int, token: str):
@@ -9,36 +18,37 @@ class PullRequestChecker:
         self.g = Github(token)
         self.repo = self.g.get_repo(repo_name)
         self.pr = self.repo.get_pull(pr_number)
-
-    def get_committers(self):
-        committers = set()
-        commits = self.pr.get_commits()
-        for commit in commits:
-            if commit.committer:
-                committers.add(commit.committer.login)
-        return committers
+        self.commit_handler = CommitHandler(self.pr)
 
     def get_approvers(self):
-        approvers = set()
-        reviews = self.pr.get_reviews()
-        for review in reviews:
-            if review.state == "APPROVED":
-                approvers.add(review.user.login)
-        return approvers
+        return {review.user.login for review in self.pr.get_reviews() if review.state == APPROVED_STATE}
 
     def check_approvers(self):
-        committers = self.get_committers()
+        committers = self.commit_handler.get_committers()
         approvers = self.get_approvers()
         intersection = committers.intersection(approvers)
         if intersection:
-            print(f"Approver(s) {', '.join(intersection)} are also committers. Failing the workflow.")
-            sys.exit(1)
+            raise Exception(f"Approver(s) {', '.join(intersection)} are also committers. Failing the workflow.")
         print("All checks passed successfully.")
 
 if __name__ == "__main__":
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    pr_number = int(os.getenv('PR_NUMBER'))
+    pr_number = os.getenv('PR_NUMBER')
     token = os.getenv('GITHUB_TOKEN')
 
-    checker = PullRequestChecker(repo_name, pr_number, token)
-    checker.check_approvers()
+    if not repo_name or not pr_number or not token:
+        print("Error: Missing required environment variables.")
+        sys.exit(1)
+
+    try:
+        pr_number = int(pr_number)
+    except ValueError:
+        print("Error: PR_NUMBER should be an integer.")
+        sys.exit(1)
+
+    try:
+        checker = PullRequestChecker(repo_name, pr_number, token)
+        checker.check_approvers()
+    except Exception as e:
+        print(str(e))
+        sys.exit(1)
