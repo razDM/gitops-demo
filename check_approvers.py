@@ -96,7 +96,7 @@ class PullRequestChecker:
                 f"below committed"
                 f"and approved the PR: {', '.join(committers)}"
             )
-        logger.info(
+        logger.info(msg)
         intersection = committers.intersection(approvers)
         
         if intersection:
