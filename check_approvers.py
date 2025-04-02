@@ -92,6 +92,11 @@ class PullRequestChecker:
         """
         committers = self.commit_handler.get_committers()
         approvers = self.get_approvers()
+        msg = (
+                f"below committed"
+                f"and approved the PR: {', '.join(committers)}"
+            )
+        logger.info(
         intersection = committers.intersection(approvers)
         
         if intersection:
