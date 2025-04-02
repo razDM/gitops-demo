@@ -39,13 +39,14 @@ class CommitHandler:
         Get the set of all committers in the pull request.
         
         Returns:
-            Set of committer login names
+            Set of committer usernames
         """
-        return {
-            commit.committer.name
-            for commit in self.pr.get_commits() 
-            if commit.committer and commit.committer.name
-        }
+        committers = set()
+        for commit in self.pr.get_commits():
+            # Use author instead of committer to get the actual user who made the change
+            if commit.author and commit.author.login:
+                committers.add(commit.author.login)
+        return committers
 
 class PullRequestChecker:
     """Checks pull request approvals against committers."""
