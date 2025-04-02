@@ -44,7 +44,7 @@ class CommitHandler:
         return {
             commit.committer.login 
             for commit in self.pr.get_commits() 
-            if commit.committer and commit.committer.login
+            if commit.committer and commit.committer.name
         }
 
 class PullRequestChecker:
